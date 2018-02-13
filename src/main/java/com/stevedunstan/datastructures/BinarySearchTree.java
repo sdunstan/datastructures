@@ -32,10 +32,10 @@ public class BinarySearchTree<Key extends Comparable<Key>,Value> {
         Node nodeLeft = new Node(
                 node.getKey(),
                 node.getValue(),
-                1 + size(node.getLeft()) + ((nodeRight == null) ? 0 : size(nodeRight.getLeft())),
+                1 + size(node.getLeft()) + size(nodeRight.getLeft()),
                 RED,
                 node.getLeft(),
-                ((nodeRight == null) ? null : nodeRight.getLeft()));
+                nodeRight.getLeft());
 
         nodeRight = new Node(
                 nodeRight.getKey(),
@@ -121,14 +121,14 @@ public class BinarySearchTree<Key extends Comparable<Key>,Value> {
         else newNode = copyWithValue(node, value);
 
         // Now rotate, if necessary
-        //if (isRed(newNode.getLeft()) && isBlack(newNode.getRight()))
-        //    newNode = rotateLeft(newNode);
-        //if (isRed(newNode.getLeft()) && isRed(newNode.getLeft().getLeft()))
-        //    newNode = rotateRight(newNode);
+        if (isRed(newNode.getRight()) && isBlack(newNode.getLeft()))
+            newNode = rotateLeft(newNode);
+        if (isRed(newNode.getLeft()) && isRed(newNode.getLeft().getLeft()))
+            newNode = rotateRight(newNode);
 
         // Now flip colors, if necessary
-        //if (isRed(newNode.getLeft()) && isRed(newNode.getRight()))
-        //    newNode = flipColors(newNode);
+        if (isRed(newNode.getLeft()) && isRed(newNode.getRight()))
+            newNode = flipColors(newNode);
 
         newNode = incrementSize(newNode);
 
@@ -179,6 +179,15 @@ public class BinarySearchTree<Key extends Comparable<Key>,Value> {
                 node.getRight());
     }
 
+    private Node copyWithColor(Node node, Color color) {
+        return new Node(node.getKey(),
+                node.getValue(),
+                node.getSubtreeSize(),
+                color,
+                node.getLeft(),
+                node.getRight());
+    }
+
     // Public interface
     public int size() {
         if (root == null) return 0;
@@ -187,6 +196,7 @@ public class BinarySearchTree<Key extends Comparable<Key>,Value> {
 
     public void put(Key key, Value value) {
         root = put(root, key, value);
+        root = copyWithColor(root, BLACK);
     }
 
     public Value get(Key key) {
