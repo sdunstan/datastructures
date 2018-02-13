@@ -57,7 +57,7 @@ public class BinarySearchTree<Key extends Comparable<Key>,Value> {
         Node nodeRight = new Node(
                 node.getKey(),
                 node.getValue(),
-                1 + size(node.getLeft()) + size(nodeLeft.getRight()),
+                1 +  size(nodeLeft.getRight()) + size(node.getRight()),
                 RED,
                 nodeLeft.getRight(),
                 node.getRight());
@@ -116,9 +116,9 @@ public class BinarySearchTree<Key extends Comparable<Key>,Value> {
         Node newNode;
 
         int diff = key.compareTo(node.getKey());
-        if (diff < 0) newNode = copyWithLeft(node, put(node.getLeft(), key, value));
+        if      (diff < 0) newNode = copyWithLeft(node, put(node.getLeft(), key, value));
         else if (diff > 0) newNode = copyWithRight(node, put(node.getRight(), key, value));
-        else newNode = copyWithValue(node, value);
+        else               newNode = copyWithValue(node, value);
 
         // Now rotate, if necessary
         if (isRed(newNode.getRight()) && isBlack(newNode.getLeft()))
