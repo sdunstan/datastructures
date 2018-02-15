@@ -109,15 +109,51 @@ public class BinarySearchTree<Key extends Comparable<Key>,Value> {
         return !isRed(node);
     }
 
-    private Node put(final Node node, final Key key, final Value value) {
+    private Node _put(final Key key, final Value value) {
+        Node newNode = null;
+        Node node = root;
+
+        while (node != null) {
+            int diff = key.compareTo(node.getKey());
+            if (diff == 0) {
+                newNode = copyWithValue(node, value);
+                break;
+            }
+            else if (diff < 0) {
+                node = node.getLeft();
+            }
+            else if (diff > 0) {
+                node = node.getRight();
+            }
+            if (node == null)
+                newNode = new Node(key, value, 1, RED, null, null);
+        }
+
+
+        //// Now rotate, if necessary
+        //if (isRed(newNode.getRight()) && isBlack(newNode.getLeft()))
+        //    newNode = rotateLeft(newNode);
+        //if (isRed(newNode.getLeft()) && isRed(newNode.getLeft().getLeft()))
+        //    newNode = rotateRight(newNode);
+        //
+        //// Now flip colors, if necessary
+        //if (isRed(newNode.getLeft()) && isRed(newNode.getRight()))
+        //    newNode = flipColors(newNode);
+
+        newNode = incrementSize(newNode);
+
+        return newNode;
+    }
+
+    private Node recursivePut(final Node node, final Key key, final Value value) {
         if (node == null)
             return new Node(key, value, 1, RED, null, null);
 
         Node newNode;
 
         int diff = key.compareTo(node.getKey());
-        if      (diff < 0) newNode = copyWithLeft(node, put(node.getLeft(), key, value));
-        else if (diff > 0) newNode = copyWithRight(node, put(node.getRight(), key, value));
+        if      (diff < 0) newNode = copyWithLeft(node, recursivePut(node.getLeft(), key, value));
+        else if (diff > 0) newNode = copyWithRight(node, recursivePut(node.getRight(), key, value));
         else               newNode = copyWithValue(node, value);
 
         // Now rotate, if necessary
@@ -135,11 +171,11 @@ public class BinarySearchTree<Key extends Comparable<Key>,Value> {
         return newNode;
     }
 
-    private Value get(Node node, Key key) {
+    private Value recursiveGet(Node node, Key key) {
         if (node == null) return null;
         int diff = key.compareTo(node.getKey());
-        if      (diff < 0) return get(node.left, key);
-        else if (diff > 0) return get(node.right, key);
+        if      (diff < 0) return recursiveGet(node.left, key);
+        else if (diff > 0) return recursiveGet(node.right, key);
         else               return node.getValue();
     }
 
@@ -195,12 +231,24 @@ public class BinarySearchTree<Key extends Comparable<Key>,Value> {
     }
 
     public void put(Key key, Value value) {
-        root = put(root, key, value);
+        //root = recursivePut(root, key, value);
+        root = _put(key, value);
         root = copyWithColor(root, BLACK);
     }
 
     public Value get(Key key) {
-        return get(root, key);
+        //return recursiveGet(root, key);
+        Node node = root;
+        while (node != null) {
+            int diff = key.compareTo(node.getKey());
+            if (diff == 0) return node.getValue();
+
+            if (diff < 0)
+                node = node.getLeft();
+            else
+                node = node.getRight();
+        }
+        return null;
     }
 
     private final class Node {
